@@ -1,0 +1,256 @@
+/* =============================================================================
+   TicketPortal shared component classes. Angular's TpButtonDirective and
+   React's <Button>/<Card>/<StatusPill> all apply these class names — this is
+   what keeps the two frameworks visually identical instead of two hand-tuned
+   copies drifting apart. If you change a style here, both apps get it.
+
+   Sleek Dark Olive pass: almost every rule below reads a --tp-* variable
+   rather than a literal color, so most of this file needed no changes at
+   all once tokens.css was repainted — that's the payoff of the token
+   indirection already being in place. The exceptions, called out inline,
+   are the handful of places that only had a *transform* for :active (no
+   color change) and the focus ring, both tightened to make the new amber
+   accent read clearly at each interactive state.
+   ============================================================================= */
+
+.tp-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--tp-space-2);
+  border: 1px solid transparent;
+  border-radius: var(--tp-radius-sm);
+  font-family: var(--tp-font-body);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background var(--tp-transition-fast), border-color var(--tp-transition-fast),
+    color var(--tp-transition-fast), box-shadow var(--tp-transition-fast),
+    transform var(--tp-transition-fast), opacity var(--tp-transition-fast);
+  white-space: nowrap;
+}
+
+/* Focus ring: unchanged structure, now amber. Kept at 3px tint + 1px solid
+   ring — on the new light neutral canvas this combination stays >=3:1
+   (WCAG 1.4.11 non-text contrast) against both --tp-bg and --tp-surface. */
+.tp-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--tp-yellow-tint), 0 0 0 1px var(--tp-yellow-dark);
+}
+
+/* NEW: active/pressed now gets a real color shift, not just the transform —
+   previously every variant relied on transform alone for :active, so a
+   press had no color feedback at all. This adds one shared active tint via
+   filter (works uniformly across the gradient, solid, and ghost variants
+   without needing a per-variant --tp-*-active token) layered on top of the
+   existing press transform. */
+.tp-btn:active:not(:disabled) {
+  transform: translateY(1px) scale(0.98);
+  filter: brightness(0.94);
+}
+
+.tp-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.tp-btn--sm {
+  padding: var(--tp-space-2) var(--tp-space-3);
+  font-size: 13px;
+}
+
+.tp-btn--md {
+  padding: 10px var(--tp-space-4);
+  font-size: 14px;
+}
+
+.tp-btn--lg {
+  padding: 14px var(--tp-space-5);
+  font-size: 15px;
+}
+
+.tp-btn--primary {
+  background: var(--tp-gradient-brand);
+  border-color: transparent;
+  color: var(--tp-text-on-yellow);
+  box-shadow: var(--tp-shadow-glow);
+}
+
+.tp-btn--primary:hover:not(:disabled) {
+  background: var(--tp-gradient-brand-hover);
+  box-shadow: var(--tp-shadow-glow-lg);
+  transform: translateY(-1px);
+}
+
+/* Diagonal light sweep on hover — subtle, not gimmicky (one pass, no loop). */
+.tp-btn--primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.45) 50%, transparent 65%);
+  transform: translateX(-120%);
+  transition: transform 550ms ease;
+  pointer-events: none;
+}
+
+.tp-btn--primary:hover:not(:disabled)::after {
+  transform: translateX(120%);
+}
+
+.tp-btn--secondary {
+  background: var(--tp-bg);
+  border-color: var(--tp-border);
+  color: var(--tp-text);
+}
+
+.tp-btn--secondary:hover:not(:disabled) {
+  border-color: var(--tp-yellow-dark);
+  background: var(--tp-yellow-tint);
+  transform: translateY(-1px);
+}
+
+.tp-btn--ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--tp-text-muted);
+}
+
+.tp-btn--ghost:hover:not(:disabled) {
+  background: var(--tp-bg-soft);
+  color: var(--tp-text);
+}
+
+.tp-btn--danger {
+  background: linear-gradient(135deg, #ef4a4f 0%, #d92e33 100%);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(225, 58, 63, 0.28);
+}
+
+.tp-btn--danger:hover:not(:disabled) {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+/* ---- Card -------------------------------------------------------------- */
+
+.tp-card {
+  display: block;
+  background: var(--tp-surface);
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-md);
+  box-shadow: var(--tp-shadow-card);
+}
+
+.tp-card--padded {
+  padding: var(--tp-space-5);
+}
+
+.tp-card--hoverable {
+  cursor: pointer;
+  transition: transform var(--tp-transition), box-shadow var(--tp-transition), border-color var(--tp-transition);
+}
+
+.tp-card--hoverable:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--tp-shadow-elevated);
+  border-color: var(--tp-yellow-dark);
+}
+
+/* NEW: focus-visible parity for keyboard users — a hoverable card is
+   almost always a tappable target (booking selection, operator row),
+   so it needs the same ring a button gets. */
+.tp-card--hoverable:focus-visible {
+  outline: none;
+  box-shadow: var(--tp-shadow-elevated), 0 0 0 3px var(--tp-yellow-tint), 0 0 0 1px var(--tp-yellow-dark);
+  border-color: var(--tp-yellow-dark);
+}
+
+.tp-card--hoverable:active {
+  transform: translateY(-1px);
+}
+
+/* ---- Status pill --------------------------------------------------------- */
+
+.tp-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px var(--tp-space-3);
+  border-radius: var(--tp-radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.tp-pill--success {
+  background: var(--tp-success-tint);
+  color: var(--tp-success);
+}
+
+.tp-pill--danger {
+  background: var(--tp-danger-tint);
+  color: var(--tp-danger);
+}
+
+.tp-pill--warning {
+  background: var(--tp-warning-tint);
+  color: #8a5a00;
+}
+
+.tp-pill--info {
+  background: var(--tp-info-tint);
+  color: var(--tp-info);
+}
+
+.tp-pill--neutral {
+  background: var(--tp-bg-soft);
+  color: var(--tp-text-muted);
+  border: 1px solid var(--tp-border);
+}
+
+/* ---- Shared visual utilities --------------------------------------------
+   Small, additive, opt-in utility classes used by the brand chrome (navbar,
+   footer, auth pages, empty states). See the review checklist: .tp-glass
+   in particular needs a decision before this rebrand is complete — it's
+   currently what actually paints the Angular navbar's background, and it's
+   still a light/translucent surface, not dark olive. */
+
+.tp-gradient-text {
+  background: var(--tp-gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.tp-glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+}
+
+.tp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--tp-radius-pill);
+  background: var(--tp-yellow-tint);
+  color: #8a5200;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.tp-icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--tp-radius-md);
+  background: var(--tp-gradient-brand);
+  box-shadow: var(--tp-shadow-glow);
+  color: var(--tp-text-on-yellow);
+  flex-shrink: 0;
+}

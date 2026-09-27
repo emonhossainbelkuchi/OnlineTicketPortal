@@ -1,0 +1,14 @@
+{
+  "name": "mock-erp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Chunk 8 — a small standalone server standing in for Hanif's own ERP, implementing the four calls in docs/EXTERNAL_ERP_INTEGRATION_CONTRACT.md so ExternalBookingSyncService has something real to talk to in dev/demo.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "serve": "node src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

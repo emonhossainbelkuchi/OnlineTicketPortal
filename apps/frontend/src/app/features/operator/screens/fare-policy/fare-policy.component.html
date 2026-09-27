@@ -1,0 +1,147 @@
+<div class="tp-policy">
+  <tp-card>
+    <div class="tp-policy__header">
+      <h3>Fare Rules</h3>
+      <button tpButton variant="secondary" size="sm" (click)="openFareModal()">Add Fare Rule</button>
+    </div>
+    <p class="tp-muted tp-hint">Override the base fare for a route, optionally narrowed to a bus type and/or seat type.</p>
+
+    <tp-table [columns]="fareColumns" [rows]="fareRows()" emptyTitle="No fare rules yet">
+      <ng-template #rowActions let-row>
+        <button tpButton variant="ghost" size="sm" (click)="openFareModal(findFareRule(row['id']))">Edit</button>
+        <button tpButton variant="danger" size="sm" (click)="deleteFareRule(row['id'])">Delete</button>
+      </ng-template>
+    </tp-table>
+  </tp-card>
+
+  <tp-card>
+    <div class="tp-policy__header">
+      <h3>Cancellation Policies</h3>
+      <button tpButton variant="secondary" size="sm" (click)="openPolicyModal()">Add Policy</button>
+    </div>
+    <p class="tp-muted tp-hint">A descending ladder of refund tiers by notice given before departure.</p>
+
+    <tp-table [columns]="policyColumns" [rows]="policyRows()" emptyTitle="No cancellation policies yet">
+      <ng-template #rowActions let-row>
+        <button tpButton variant="ghost" size="sm" (click)="openPolicyModal(findPolicy(row['id']))">Edit</button>
+        <button tpButton variant="danger" size="sm" (click)="deletePolicy(row['id'])">Delete</button>
+      </ng-template>
+    </tp-table>
+  </tp-card>
+</div>
+
+<tp-modal [open]="fareModalOpen()" [title]="editingFareRule() ? 'Edit Fare Rule' : 'Add Fare Rule'" (closed)="closeFareModal()">
+  <form [formGroup]="fareForm" class="tp-form-grid">
+    <label class="tp-form-grid__span2">
+      Bus route
+      <select formControlName="busRouteId">
+        <option value="" disabled>Select a route…</option>
+        @for (r of busRoutes(); track r.id) {
+          <option [value]="r.id">{{ r.routeCode }} — {{ r.name }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Bus type (optional)
+      <select formControlName="busType">
+        @for (t of busTypes; track t) {
+          <option [value]="t">{{ t || 'Any' }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Seat type (optional)
+      <select formControlName="seatType">
+        @for (t of seatTypes; track t) {
+          <option [value]="t">{{ t || 'Any' }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Base fare
+      <input type="number" formControlName="baseFare" />
+    </label>
+    <label>
+      Currency
+      <input type="text" formControlName="currency" maxlength="3" />
+    </label>
+    <label>
+      Effective from
+      <input type="date" formControlName="effectiveFromUtc" />
+    </label>
+    <label>
+      Effective to
+      <input type="date" formControlName="effectiveToUtc" />
+    </label>
+    <label class="tp-policy__checkbox">
+      <input type="checkbox" formControlName="isActive" />
+      Active
+    </label>
+  </form>
+  <div modal-footer>
+    <button tpButton variant="secondary" (click)="closeFareModal()">Cancel</button>
+    <button tpButton variant="primary" [disabled]="fareForm.invalid || saving()" (click)="saveFareRule()">
+      {{ saving() ? 'Saving…' : 'Save' }}
+    </button>
+  </div>
+</tp-modal>
+
+<tp-modal [open]="policyModalOpen()" [title]="editingPolicy() ? 'Edit Policy' : 'Add Policy'" (closed)="closePolicyModal()">
+  <form [formGroup]="policyForm" class="tp-form-grid">
+    <label class="tp-form-grid__span2">
+      Policy name
+      <input type="text" formControlName="name" />
+    </label>
+    <label class="tp-form-grid__span2">
+      Description
+      <textarea formControlName="description" rows="2"></textarea>
+    </label>
+    <label>
+      Effective from
+      <input type="date" formControlName="effectiveFromUtc" />
+    </label>
+    <label>
+      Effective to
+      <input type="date" formControlName="effectiveToUtc" />
+    </label>
+    <label class="tp-policy__checkbox">
+      <input type="checkbox" formControlName="isActive" />
+      Active
+    </label>
+
+    <div class="tp-form-grid__span2 tp-policy__rules-header">
+      <h4>Refund tiers</h4>
+      <button type="button" tpButton variant="ghost" size="sm" (click)="addRuleRow()">Add tier</button>
+    </div>
+
+    <div class="tp-form-grid__span2 tp-policy__rule-table" formArrayName="rules">
+      @for (ruleGroup of ruleControls; track $index) {
+        <div class="tp-policy__rule-row" [formGroupName]="$index">
+          <label>
+            Min hours before departure
+            <input type="number" formControlName="minHoursBeforeDeparture" />
+          </label>
+          <label>
+            Max hours before departure
+            <input type="number" formControlName="maxHoursBeforeDeparture" placeholder="No limit" />
+          </label>
+          <label>
+            Refund %
+            <input type="number" formControlName="refundPercentage" />
+          </label>
+          <label>
+            Fixed fee
+            <input type="number" formControlName="fixedCancellationFee" />
+          </label>
+          <button type="button" tpButton variant="danger" size="sm" (click)="removeRuleRow($index)">✕</button>
+        </div>
+      }
+    </div>
+  </form>
+  <div modal-footer>
+    <button tpButton variant="secondary" (click)="closePolicyModal()">Cancel</button>
+    <button tpButton variant="primary" [disabled]="policyForm.invalid || saving()" (click)="savePolicy()">
+      {{ saving() ? 'Saving…' : 'Save' }}
+    </button>
+  </div>
+</tp-modal>

@@ -1,0 +1,37 @@
+/* =============================================================================
+   TicketPortal — Customer Frontend Theme Override
+   -----------------------------------------------------------------------------
+   INTENTIONALLY EMPTIED as part of the "Sleek Dark Olive" rebrand.
+
+   This file previously re-declared nearly every --tp-* custom property
+   with its own "Cloudy Glass" pastel palette (icy blue / lavender / peach),
+   loaded in apps/frontend/project.json AFTER libs/shared/design-tokens/
+   tokens.css and components.css. Because :root declarations here came
+   later in the cascade, this file silently won every time — apps/frontend
+   was never actually themed by the shared tokens, regardless of what those
+   tokens said. Updating only libs/shared/design-tokens/tokens.css (without
+   also emptying this file) would have produced ZERO visible change on the
+   customer/counter/operator/finance portal.
+
+   Removing the re-declaration block restores the shared tokens.css/
+   components.css as the actual single source of truth for this app, which
+   is what "shift the visual identity using the single source of truth in
+   my shared design tokens library" requires. --tp-brand-1/2/3 (previously
+   only defined here, for tp-logo.component.ts's SVG gradient) now live in
+   tokens.css instead, so the Angular logo mark stays on-brand without this
+   file needing to define them.
+
+   The glass-blur supplemental rules (.tp-card background/backdrop-filter,
+   .tp-card--peach) are removed too — they were built for the old radial
+   gradient-mesh backdrop the "Cloudy Glass" theme painted behind them; on
+   the new flat light-neutral canvas there's nothing colorful behind a
+   translucent card to blur, so the effect would just look like a faint
+   grey smear rather than "frosted glass." If a future pass wants a glass
+   treatment that fits the dark-olive system, it should be re-authored
+   against the new tokens rather than left over from the old ones.
+
+   If apps/frontend genuinely needs a per-app override again later, add it
+   here — but re-declare individual tokens deliberately, not the whole set,
+   and keep in mind anything you set here will win over tokens.css by
+   load order (see apps/frontend/project.json's "styles" array).
+   ============================================================================= */

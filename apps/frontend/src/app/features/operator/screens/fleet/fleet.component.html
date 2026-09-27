@@ -1,0 +1,305 @@
+<div class="tp-fleet">
+  <tp-card>
+    <div class="tp-fleet__header">
+      <h3>Buses</h3>
+      <button tpButton variant="secondary" size="sm" (click)="openBusModal()">Add Bus</button>
+    </div>
+
+    <tp-table
+      [columns]="busColumns"
+      [rows]="busRows()"
+      emptyTitle="No buses yet"
+      emptyMessage="Add your first bus to start scheduling trips."
+    >
+      <ng-template #rowActions let-row>
+        <button tpButton variant="ghost" size="sm" (click)="selectBus(row['id'])">View</button>
+        <button tpButton variant="ghost" size="sm" (click)="openBusModal(findBusRow(row['id']))">Edit</button>
+        <button tpButton variant="danger" size="sm" (click)="deleteBusRow(row['id'])">Delete</button>
+      </ng-template>
+    </tp-table>
+  </tp-card>
+
+  @if (selectedBus(); as bus) {
+    <tp-card>
+      <div class="tp-fleet__header">
+        <h3>{{ bus.registrationNumber }} — {{ bus.coachNumber }}</h3>
+      </div>
+
+      <div class="tp-fleet__bus-detail">
+        <div class="tp-fleet__cover">
+          @if (selectedBusCoverUrl(); as url) {
+            <img [src]="url" alt="Bus cover" />
+          } @else {
+            <div class="tp-fleet__cover-placeholder">No cover photo</div>
+          }
+          <label class="tp-fleet__cover-upload">
+            <span>{{ uploadingCover() ? 'Uploading…' : 'Upload cover photo' }}</span>
+            <input type="file" accept="image/*" (change)="onCoverImageSelected($event)" [disabled]="uploadingCover()" />
+          </label>
+        </div>
+
+        <div class="tp-fleet__amenities">
+          <h4>Amenities</h4>
+          <p class="tp-muted tp-hint">Assigning amenities is Admin-only — shown here for reference.</p>
+          @if (selectedBusAmenities().length === 0) {
+            <p class="tp-muted">No amenities assigned.</p>
+          } @else {
+            <div class="tp-fleet__amenity-tags">
+              @for (m of selectedBusAmenities(); track m.id) {
+                <span class="tp-pill tp-pill--neutral">{{ amenityName()(m.busAmenityId) }}</span>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="tp-fleet__sub-header">
+        <h4>Image Gallery</h4>
+        <button tpButton variant="secondary" size="sm" (click)="openImageModal()">Add Image</button>
+      </div>
+      <tp-table [columns]="imageColumns" [rows]="imageRows()" emptyTitle="No gallery images yet">
+        <ng-template #rowActions let-row>
+          <button tpButton variant="ghost" size="sm" (click)="openImageModal(findImage(row['id']))">Edit</button>
+          <button tpButton variant="danger" size="sm" (click)="deleteImage(row['id'])">Delete</button>
+        </ng-template>
+      </tp-table>
+
+      <div class="tp-fleet__sub-header">
+        <h4>Maintenance Log</h4>
+        <button tpButton variant="secondary" size="sm" (click)="openLogModal()">Add Record</button>
+      </div>
+      <tp-table [columns]="logColumns" [rows]="logRows()" emptyTitle="No maintenance records yet">
+        <ng-template #rowActions let-row>
+          <button tpButton variant="ghost" size="sm" (click)="openLogModal(findLog(row['id']))">Edit</button>
+          <button tpButton variant="danger" size="sm" (click)="deleteLog(row['id'])">Delete</button>
+        </ng-template>
+      </tp-table>
+    </tp-card>
+  }
+
+  <tp-card>
+    <h3>Driver Licenses</h3>
+    <label class="tp-fleet__driver-picker">
+      Driver
+      <select (change)="selectDriver($any($event.target).value)">
+        <option value="">Select a driver…</option>
+        @for (d of drivers(); track d.id) {
+          <option [value]="d.id">{{ d.employeeCode }}</option>
+        }
+      </select>
+    </label>
+
+    @if (selectedDriverId()) {
+      <div class="tp-fleet__sub-header">
+        <span></span>
+        <button tpButton variant="secondary" size="sm" (click)="openLicenseModal()">Add License</button>
+      </div>
+      <tp-table [columns]="licenseColumns" [rows]="licenseRows()" emptyTitle="No license records for this driver">
+        <ng-template #rowActions let-row>
+          <button tpButton variant="ghost" size="sm" (click)="openLicenseModal(findLicense(row['id']))">Edit</button>
+          <button tpButton variant="danger" size="sm" (click)="deleteLicense(row['id'])">Delete</button>
+        </ng-template>
+      </tp-table>
+    }
+  </tp-card>
+
+  <tp-card>
+    <h3>Bus Categories &amp; Amenities (reference)</h3>
+    <p class="tp-muted tp-hint">Writes to these are Admin-only — listed here so you know what's available to pick from.</p>
+    <div class="tp-fleet__reference">
+      <div>
+        <h4>Categories</h4>
+        <ul>
+          @for (c of categories(); track c.id) {
+            <li>{{ c.name }}</li>
+          }
+        </ul>
+      </div>
+      <div>
+        <h4>Amenities</h4>
+        <ul>
+          @for (a of amenities(); track a.id) {
+            <li>{{ a.name }}</li>
+          }
+        </ul>
+      </div>
+    </div>
+  </tp-card>
+</div>
+
+<tp-modal [open]="busModalOpen()" [title]="editingBus() ? 'Edit Bus' : 'Add Bus'" (closed)="closeBusModal()">
+  <form [formGroup]="busForm" class="tp-form-grid">
+    <label>
+      Registration number
+      <input type="text" formControlName="registrationNumber" />
+    </label>
+    <label>
+      Coach number
+      <input type="text" formControlName="coachNumber" />
+    </label>
+    <label>
+      Category
+      <select formControlName="busCategoryId">
+        <option value="">None</option>
+        @for (c of categories(); track c.id) {
+          <option [value]="c.id">{{ c.name }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Bus type
+      <select formControlName="busType">
+        @for (t of busTypes; track t) {
+          <option [value]="t">{{ t }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Brand
+      <input type="text" formControlName="brand" />
+    </label>
+    <label>
+      Model
+      <input type="text" formControlName="model" />
+    </label>
+    <label>
+      Registration date
+      <input type="date" formControlName="registrationDate" />
+    </label>
+    <label class="tp-fleet__checkbox">
+      <input type="checkbox" formControlName="hasWifi" />
+      Has Wi-Fi
+    </label>
+    <label class="tp-fleet__checkbox">
+      <input type="checkbox" formControlName="hasToilet" />
+      Has toilet
+    </label>
+
+    <div class="tp-form-grid__span2 tp-fleet__seats-header">
+      <h4>Seats ({{ seatControls.length }})</h4>
+      <div class="tp-fleet__seats-actions">
+        <button type="button" tpButton variant="ghost" size="sm" (click)="generateSeatGrid()">Generate grid…</button>
+        <button type="button" tpButton variant="ghost" size="sm" (click)="addSeatRow()">Add seat</button>
+      </div>
+    </div>
+
+    <div class="tp-form-grid__span2 tp-fleet__seat-table" formArrayName="seats">
+      @for (seatGroup of seatControls; track $index) {
+        <div class="tp-fleet__seat-row" [formGroupName]="$index">
+          <input type="text" formControlName="seatNumber" placeholder="No." class="tp-fleet__seat-number" />
+          <input type="number" formControlName="rowNumber" placeholder="Row" />
+          <input type="number" formControlName="columnNumber" placeholder="Col" />
+          <input type="number" formControlName="deckLevel" placeholder="Deck" />
+          <select formControlName="seatType">
+            @for (t of seatTypes; track t) {
+              <option [value]="t">{{ t }}</option>
+            }
+          </select>
+          <label class="tp-fleet__checkbox">
+            <input type="checkbox" formControlName="isWindow" />
+            Window
+          </label>
+          <input type="number" formControlName="extraFare" placeholder="Extra fare" />
+          <button type="button" tpButton variant="danger" size="sm" (click)="removeSeatRow($index)">✕</button>
+        </div>
+      }
+    </div>
+  </form>
+  <div modal-footer>
+    <button tpButton variant="secondary" (click)="closeBusModal()">Cancel</button>
+    <button tpButton variant="primary" [disabled]="busForm.invalid || saving()" (click)="saveBus()">
+      {{ saving() ? 'Saving…' : 'Save' }}
+    </button>
+  </div>
+</tp-modal>
+
+<tp-modal [open]="imageModalOpen()" [title]="editingImage() ? 'Edit Image' : 'Add Image'" (closed)="closeImageModal()">
+  <form [formGroup]="imageForm" class="tp-form-grid">
+    <label class="tp-form-grid__span2">
+      Image URL
+      <input type="text" formControlName="imageUrl" placeholder="/images/... or https://..." />
+    </label>
+    <label class="tp-form-grid__span2">
+      Caption
+      <input type="text" formControlName="caption" />
+    </label>
+    <label>
+      Display order
+      <input type="number" formControlName="displayOrder" />
+    </label>
+    <label class="tp-fleet__checkbox">
+      <input type="checkbox" formControlName="isPrimary" />
+      Primary photo
+    </label>
+  </form>
+  <div modal-footer>
+    <button tpButton variant="secondary" (click)="closeImageModal()">Cancel</button>
+    <button tpButton variant="primary" [disabled]="imageForm.invalid" (click)="saveImage()">Save</button>
+  </div>
+</tp-modal>
+
+<tp-modal [open]="logModalOpen()" [title]="editingLog() ? 'Edit Maintenance Record' : 'Add Maintenance Record'" (closed)="closeLogModal()">
+  <form [formGroup]="logForm" class="tp-form-grid">
+    <label>
+      Date
+      <input type="date" formControlName="maintenanceDateUtc" />
+    </label>
+    <label>
+      Odometer (km)
+      <input type="number" formControlName="odometerKm" />
+    </label>
+    <label class="tp-form-grid__span2">
+      Title
+      <input type="text" formControlName="title" />
+    </label>
+    <label class="tp-form-grid__span2">
+      Description
+      <textarea formControlName="description" rows="2"></textarea>
+    </label>
+    <label>
+      Cost
+      <input type="number" formControlName="cost" />
+    </label>
+    <label>
+      Next due date
+      <input type="date" formControlName="nextDueDateUtc" />
+    </label>
+    <label class="tp-form-grid__span2">
+      Performed by
+      <input type="text" formControlName="performedBy" />
+    </label>
+  </form>
+  <div modal-footer>
+    <button tpButton variant="secondary" (click)="closeLogModal()">Cancel</button>
+    <button tpButton variant="primary" [disabled]="logForm.invalid" (click)="saveLog()">Save</button>
+  </div>
+</tp-modal>
+
+<tp-modal [open]="licenseModalOpen()" [title]="editingLicense() ? 'Edit License' : 'Add License'" (closed)="closeLicenseModal()">
+  <form [formGroup]="licenseForm" class="tp-form-grid">
+    <label class="tp-form-grid__span2">
+      License number
+      <input type="text" formControlName="licenseNumber" />
+    </label>
+    <label>
+      Type
+      <select formControlName="type">
+        @for (t of licenseTypes; track t) {
+          <option [value]="t">{{ t }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Issue date
+      <input type="date" formControlName="issueDate" />
+    </label>
+    <label>
+      Expiry date
+      <input type="date" formControlName="expiryDate" />
+    </label>
+  </form>
+  <div modal-footer>
+    <button tpButton variant="secondary" (click)="closeLicenseModal()">Cancel</button>
+    <button tpButton variant="primary" [disabled]="licenseForm.invalid" (click)="saveLicense()">Save</button>
+  </div>
+</tp-modal>

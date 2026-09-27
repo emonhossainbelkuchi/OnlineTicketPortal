@@ -1,0 +1,100 @@
+{
+  "name": "frontend",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/frontend/src",
+  "tags": [
+    "type:app",
+    "scope:frontend"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/frontend",
+        "browser": "apps/frontend/src/main.ts",
+        "tsConfig": "apps/frontend/tsconfig.app.json",
+        "polyfills": [
+          "zone.js"
+        ],
+        "inlineStyleLanguage": "scss",
+        "allowedCommonJsDependencies": ["qrcode", "dijkstrajs", "canvg", "raf", "rgbcolor", "core-js", "html2canvas", "dompurify"],
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/frontend/public"
+          }
+        ],
+        "styles": [
+          "libs/shared/design-tokens/tokens.css",
+          "libs/shared/design-tokens/components.css",
+          "apps/frontend/src/styles/theme-overrides.css",
+          "apps/frontend/src/styles.scss"
+        ],
+        "optimization": {
+          "scripts": true,
+          "styles": true,
+          "fonts": false
+        }
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/frontend/src/environments/environment.ts",
+              "with": "apps/frontend/src/environments/environment.prod.ts"
+            }
+          ],
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "600kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      }
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "defaultConfiguration": "development",
+      "configurations": {
+        "production": {
+          "buildTarget": "frontend:build:production"
+        },
+        "development": {
+          "buildTarget": "frontend:build:development"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "serve-static": {
+      "continuous": true,
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "frontend:build",
+        "staticFilePath": "dist/apps/frontend/browser",
+        "spa": true
+      }
+    }
+  }
+}

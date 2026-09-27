@@ -1,0 +1,14 @@
+# Normalize line endings on checkin so a repo-wide CRLF/LF split doesn't keep producing noisy,
+# every-line diffs (see the Chunk 1 task 1 evidence: opening README.md on a machine that
+# checked it out as LF showed the whole file as changed against origin, purely from line
+# endings, with zero real content difference).
+* text=auto eol=lf
+
+# Diagrams/binary-ish text stay as-is either way; images and archives are binary, not diffed.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary

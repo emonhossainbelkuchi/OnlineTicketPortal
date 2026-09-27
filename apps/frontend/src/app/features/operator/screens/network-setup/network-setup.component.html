@@ -1,0 +1,158 @@
+<div class="tp-network">
+  <tp-card>
+    <h3>Terminals (reference)</h3>
+    <p class="tp-muted tp-hint">Writes to terminals are Admin-only — shown here to help you pick stops below.</p>
+    <tp-table [columns]="terminalColumns" [rows]="terminalRows()" emptyTitle="No terminals yet" />
+  </tp-card>
+
+  <tp-card>
+    <h3>Unified Bus Routes (reference)</h3>
+    <p class="tp-muted tp-hint">Writes to bus routes are Admin-only. Pick one to see its stop sequence.</p>
+    <label class="tp-network__picker">
+      View route stops for
+      <select (change)="viewRouteStops($any($event.target).value)">
+        <option value="">Select a route…</option>
+        @for (r of busRoutes(); track r.id) {
+          <option [value]="r.id">{{ r.routeCode }} — {{ r.name }}</option>
+        }
+      </select>
+    </label>
+    <tp-table [columns]="busRouteColumns" [rows]="busRouteRows()" emptyTitle="No routes yet" />
+
+    @if (selectedBusRouteId()) {
+      <h4 class="tp-network__sub-title">Stops on this route</h4>
+      <tp-table [columns]="routeStopColumns" [rows]="routeStopRows()" emptyTitle="No stops defined for this route" />
+    }
+  </tp-card>
+
+  <tp-card>
+    <div class="tp-network__header">
+      <h3>Your Operator Routes</h3>
+      <button tpButton variant="secondary" size="sm" (click)="openRouteModal()">Add Route</button>
+    </div>
+    <p class="tp-muted tp-hint">Which unified routes you actually run, under your own code/branding.</p>
+    <tp-table
+      [columns]="operatorRouteColumns"
+      [rows]="operatorRouteRows()"
+      emptyTitle="You haven't added any routes yet"
+      emptyMessage="Add a route to start laying out your own boarding/dropping points."
+    >
+      <ng-template #rowActions let-row>
+        <button tpButton variant="ghost" size="sm" (click)="openRouteModal(findOperatorRoute(row['id']))">Edit</button>
+        <button tpButton variant="danger" size="sm" (click)="deleteRoute(findOperatorRoute(row['id']))">Remove</button>
+      </ng-template>
+    </tp-table>
+  </tp-card>
+
+  <tp-card>
+    <h3>Your Route Stops</h3>
+    <label class="tp-network__picker">
+      Operator route
+      <select (change)="selectOperatorRoute($any($event.target).value)">
+        <option value="">Select one of your routes…</option>
+        @for (r of operatorRoutes(); track r.id) {
+          <option [value]="r.id">{{ r.operatorRouteCode }}</option>
+        }
+      </select>
+    </label>
+
+    @if (selectedOperatorRouteId()) {
+      <div class="tp-network__sub-header">
+        <span></span>
+        <button tpButton variant="secondary" size="sm" (click)="openStopModal()">Add Stop</button>
+      </div>
+      <tp-table
+        [columns]="operatorRouteStopColumns"
+        [rows]="visibleOperatorRouteStopRows()"
+        emptyTitle="No stops on this route yet"
+      >
+        <ng-template #rowActions let-row>
+          <button tpButton variant="ghost" size="sm" (click)="openStopModal(findOperatorRouteStop(row['id']))">Edit</button>
+          <button tpButton variant="danger" size="sm" (click)="deleteStop(row['id'])">Delete</button>
+        </ng-template>
+      </tp-table>
+    }
+  </tp-card>
+</div>
+
+<tp-modal [open]="routeModalOpen()" [title]="editingRoute() ? 'Edit Operator Route' : 'Add Operator Route'" (closed)="closeRouteModal()">
+  <form [formGroup]="routeForm" class="tp-form-grid">
+    <label class="tp-form-grid__span2">
+      Unified bus route
+      <select formControlName="busRouteId">
+        <option value="" disabled>Select a route…</option>
+        @for (r of busRoutes(); track r.id) {
+          <option [value]="r.id">{{ r.routeCode }} — {{ r.name }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Your route code
+      <input type="text" formControlName="operatorRouteCode" />
+    </label>
+    <label>
+      Display name
+      <input type="text" formControlName="displayName" />
+    </label>
+    <label>
+      Inventory mode override
+      <select formControlName="inventoryModeOverride">
+        @for (m of inventoryOverrides; track m) {
+          <option [value]="m">{{ m || '(use operator default)' }}</option>
+        }
+      </select>
+    </label>
+    <label class="tp-network__checkbox">
+      <input type="checkbox" formControlName="isActive" />
+      Active
+    </label>
+  </form>
+  <div modal-footer>
+    <button tpButton variant="secondary" (click)="closeRouteModal()">Cancel</button>
+    <button tpButton variant="primary" [disabled]="routeForm.invalid || saving()" (click)="saveRoute()">
+      {{ saving() ? 'Saving…' : 'Save' }}
+    </button>
+  </div>
+</tp-modal>
+
+<tp-modal [open]="stopModalOpen()" [title]="editingStop() ? 'Edit Stop' : 'Add Stop'" (closed)="closeStopModal()">
+  <form [formGroup]="stopForm" class="tp-form-grid">
+    <label class="tp-form-grid__span2">
+      Terminal
+      <select formControlName="terminalId">
+        <option value="" disabled>Select a terminal…</option>
+        @for (t of terminals(); track t.id) {
+          <option [value]="t.id">{{ t.name }} ({{ t.code }})</option>
+        }
+      </select>
+    </label>
+    <label>
+      Stop order
+      <input type="number" formControlName="stopOrder" />
+    </label>
+    <label>
+      External stop key
+      <input type="text" formControlName="externalStopKey" placeholder="For ERP-synced stops" />
+    </label>
+    <label>
+      Arrival offset (min)
+      <input type="number" formControlName="arrivalOffsetMinutes" />
+    </label>
+    <label>
+      Departure offset (min)
+      <input type="number" formControlName="departureOffsetMinutes" />
+    </label>
+    <label class="tp-network__checkbox">
+      <input type="checkbox" formControlName="isPickupPoint" />
+      Pickup point
+    </label>
+    <label class="tp-network__checkbox">
+      <input type="checkbox" formControlName="isDropOffPoint" />
+      Drop-off point
+    </label>
+  </form>
+  <div modal-footer>
+    <button tpButton variant="secondary" (click)="closeStopModal()">Cancel</button>
+    <button tpButton variant="primary" [disabled]="stopForm.invalid" (click)="saveStop()">Save</button>
+  </div>
+</tp-modal>

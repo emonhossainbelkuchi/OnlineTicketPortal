@@ -1,0 +1,180 @@
+.tp-fleet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tp-space-5);
+}
+
+/* Same form-grid convention used across every Piece 4 screen — see
+   profile-branches.component.ts for the canonical copy/comment. Kept local
+   rather than promoted to libs/shared/design-tokens/components.css since
+   that file is shared with the React admin app, which has no reactive-form
+   layout of its own to share this with. */
+.tp-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--tp-space-4);
+  margin-top: var(--tp-space-4);
+}
+
+.tp-form-grid__span2 {
+  grid-column: 1 / -1;
+}
+
+.tp-form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tp-space-2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tp-text-muted);
+}
+
+.tp-form-grid input,
+.tp-form-grid select,
+.tp-form-grid textarea {
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-sm);
+  padding: 8px var(--tp-space-3);
+  font-size: 14px;
+  font-family: var(--tp-font-body);
+  color: var(--tp-text);
+}
+
+.tp-hint {
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.tp-fleet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--tp-space-4);
+}
+
+.tp-fleet__sub-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--tp-space-5);
+  margin-bottom: var(--tp-space-3);
+}
+
+.tp-fleet__bus-detail {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: var(--tp-space-5);
+  margin-bottom: var(--tp-space-4);
+}
+
+.tp-fleet__cover img {
+  width: 140px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: var(--tp-radius-sm);
+  border: 1px solid var(--tp-border);
+}
+
+.tp-fleet__cover-placeholder {
+  width: 140px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 11px;
+  color: var(--tp-text-muted);
+  border: 1px dashed var(--tp-border);
+  border-radius: var(--tp-radius-sm);
+}
+
+.tp-fleet__cover-upload {
+  display: block;
+  margin-top: var(--tp-space-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tp-fleet__amenity-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tp-space-2);
+}
+
+.tp-fleet__driver-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tp-space-2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tp-text-muted);
+  max-width: 280px;
+  margin-bottom: var(--tp-space-3);
+}
+
+.tp-fleet__driver-picker select {
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-sm);
+  padding: 8px var(--tp-space-3);
+  font-size: 14px;
+}
+
+.tp-fleet__reference {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--tp-space-5);
+}
+
+.tp-fleet__reference ul {
+  margin: 0;
+  padding-left: var(--tp-space-5);
+  font-size: 14px;
+}
+
+.tp-fleet__seats-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tp-fleet__seats-actions {
+  display: flex;
+  gap: var(--tp-space-2);
+}
+
+.tp-fleet__seat-table {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tp-space-2);
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-sm);
+  padding: var(--tp-space-3);
+}
+
+.tp-fleet__seat-row {
+  display: grid;
+  grid-template-columns: 70px 60px 60px 60px 1fr 90px 100px 32px;
+  gap: var(--tp-space-2);
+  align-items: center;
+}
+
+.tp-fleet__seat-row input,
+.tp-fleet__seat-row select {
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-sm);
+  padding: 6px var(--tp-space-2);
+  font-size: 13px;
+  width: 100%;
+}
+
+.tp-fleet__checkbox {
+  flex-direction: row !important;
+  align-items: center;
+  gap: var(--tp-space-2) !important;
+}
+
+.tp-fleet__checkbox input {
+  width: auto !important;
+}

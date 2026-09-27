@@ -1,0 +1,99 @@
+// Angular Material theming (M3). This defines the --mat-sys-* CSS variables
+// that every Material component (mat-tab-nav-bar, mat-form-field, mat-select,
+// mat-datepicker, the MatRipple used by tpButton, ...) reads for its colors.
+// The palette is tuned to match apps/frontend's own blue/white brand theme
+// (see styles/theme-overrides.css) so Material components and our own
+// tp-btn/tp-card/tp-pill components look like one consistent design system
+// instead of two different products bolted together.
+//
+// This is scoped to apps/frontend only — apps/admin doesn't use Angular
+// Material, so its look is completely unaffected.
+@use '@angular/material' as mat;
+
+html {
+  color-scheme: light;
+
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: mat.$cyan-palette,
+        tertiary: mat.$orange-palette,
+      ),
+      typography: (
+        brand-family: 'Poppins, Segoe UI, sans-serif',
+        plain-family: 'Inter, Segoe UI, sans-serif',
+      ),
+      density: 0,
+    )
+  );
+}
+
+// Base resets + layout utilities only. Color/spacing tokens and the shared
+// .tp-btn/.tp-card/.tp-pill classes live in libs/shared/design-tokens —
+// wired into the "styles" array in project.json, not imported here — so
+// this file never needs to know their content.
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--tp-bg);
+  color: var(--tp-text);
+  font-family: var(--tp-font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--tp-font-heading);
+  font-weight: 600;
+  margin: 0 0 var(--tp-space-3);
+  color: var(--tp-text);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+.tp-page {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: var(--tp-space-6) var(--tp-space-5);
+}
+
+.tp-section {
+  margin-bottom: var(--tp-space-6);
+}
+
+.tp-muted {
+  color: var(--tp-text-muted);
+}
+
+.tp-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

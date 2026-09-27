@@ -1,0 +1,88 @@
+.tp-network {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tp-space-5);
+}
+
+/* Same form-grid convention as every Piece 4 screen — see profile-branches.component.ts. */
+.tp-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--tp-space-4);
+  margin-top: var(--tp-space-4);
+}
+
+.tp-form-grid__span2 {
+  grid-column: 1 / -1;
+}
+
+.tp-form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tp-space-2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tp-text-muted);
+}
+
+.tp-form-grid input,
+.tp-form-grid select,
+.tp-form-grid textarea {
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-sm);
+  padding: 8px var(--tp-space-3);
+  font-size: 14px;
+  font-family: var(--tp-font-body);
+  color: var(--tp-text);
+}
+
+.tp-hint {
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.tp-network__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tp-network__sub-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--tp-space-4);
+  margin-bottom: var(--tp-space-3);
+}
+
+.tp-network__sub-title {
+  margin-top: var(--tp-space-4);
+}
+
+.tp-network__picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tp-space-2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tp-text-muted);
+  max-width: 360px;
+  margin: var(--tp-space-3) 0 var(--tp-space-4);
+}
+
+.tp-network__picker select {
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-sm);
+  padding: 8px var(--tp-space-3);
+  font-size: 14px;
+}
+
+.tp-network__checkbox {
+  flex-direction: row !important;
+  align-items: center;
+  gap: var(--tp-space-2) !important;
+}
+
+.tp-network__checkbox input {
+  width: auto !important;
+}

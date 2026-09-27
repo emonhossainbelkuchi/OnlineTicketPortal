@@ -1,0 +1,75 @@
+# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+
+# compiled output
+dist
+tmp
+out-tsc
+
+# dependencies
+node_modules
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+/typings
+
+# System Files
+.DS_Store
+Thumbs.db
+
+.nx/cache
+.nx/workspace-data
+.nx/migrate-runs
+.claude/worktrees
+.claude/settings.local.json
+
+.angular
+
+vite.config.*.timestamp*
+# .NET (apps/api)
+apps/api/bin/
+apps/api/obj/
+apps/api/**/bin/
+apps/api/**/obj/
+*.user
+
+# Visual Studio / stray .NET build output if opened or built from the repo
+# root instead of apps/api/ directly (e.g. "Open Folder" on the repo root
+# in Visual Studio creates .vs/ wherever you opened, not inside apps/api)
+/.vs/
+/bin/
+/obj/
+
+# RBAC Amendment v3 / Chunk 1 task 1 — secrets and runtime-generated content that must never be
+# committed. apps/admin/.env.development and .env.production are deliberately NOT covered here:
+# those are already-tracked, non-secret build config (API base URLs), not credentials.
+apps/api/appsettings.*.local.json
+*.local.json
+
+# User-uploaded bus/operator images written at runtime (BusesController.UploadImage,
+# BusOperatorsController's logo upload) — these are generated data, not source, and
+# apps/api/wwwroot/images previously had two such files committed by accident.
+apps/api/wwwroot/images/*
+!apps/api/wwwroot/images/.gitkeep
+

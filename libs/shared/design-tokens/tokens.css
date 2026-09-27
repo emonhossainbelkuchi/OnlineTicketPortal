@@ -1,0 +1,126 @@
+/* =============================================================================
+   TicketPortal Design Tokens — "Sleek Dark Olive"
+   SINGLE SOURCE OF TRUTH for both apps/frontend (Angular) and apps/admin
+   (React). Plain CSS custom properties — imported directly by both:
+     Angular: added to the "styles" array in apps/frontend/project.json
+     React:   `import '@ticketportal-mono/design-tokens/tokens.css'` in main.tsx
+   Change a color here once, both apps update — never hardcode a hex value
+   or redefine one of these variables locally in either app.
+
+   60 / 30 / 10 distribution:
+     60% --tp-bg / --tp-surface   → light neutral canvas + card surfaces
+     30% --tp-ink / --tp-ink-soft → deep dark olive structural chrome
+     10% --tp-yellow family       → amber → terracotta interactive accent
+
+   Every original token name is preserved so nothing downstream breaks —
+   only the values changed, plus a small number of additive tokens:
+     --tp-space-8            fixes an already-undefined reference in
+                              operator-shell.component.ts (var(--tp-space-8)
+                              was silently invalid before this change).
+     --tp-brand-1/2/3         previously only ever defined inside
+                              apps/frontend/src/styles/theme-overrides.css
+                              (consumed by tp-logo.component.ts's SVG
+                              gradient with a hardcoded pastel fallback).
+                              Centralizing them here — instead of in a
+                              per-app override file — is exactly the "single
+                              source of truth" fix this rebrand calls for.
+   ============================================================================= */
+
+:root {
+  /* ---- Color: surfaces — the "60%" canvas ------------------------------- */
+  --tp-bg: #f4f6f4;
+  --tp-bg-soft: #ecefea;
+  --tp-surface: #ffffff;
+  --tp-surface-alt: #eef1ea;
+  --tp-border: #dce2d7;
+
+  /* ---- Color: brand / accent (amber → terracotta) — the "10%" ----------- */
+  --tp-yellow: #d97706; /* primary accent fill */
+  --tp-yellow-dark: #cc6a07; /* hover/pressed fill — kept light enough that
+    --tp-text-on-yellow stays >=4.5:1 on top of it; see tokens.css review */
+  --tp-yellow-tint: #fbeedc; /* pale wash — focus rings, hover fills, chips */
+  --tp-yellow-2: #e07a5f; /* secondary gradient stop — burnt terracotta */
+
+  /* Gradients — the signature CTA mark. Use for primary buttons, the icon
+     badge, and hero accents only. Never use as a full-page background (keep
+     large surfaces on --tp-bg/--tp-surface so the gradient stays a highlight
+     against the 60% canvas, not competitive with it). */
+  --tp-gradient-brand: linear-gradient(135deg, #d97706 0%, #e07a5f 100%);
+  --tp-gradient-brand-hover: linear-gradient(135deg, #cc6a07 0%, #cc6a50 100%);
+  --tp-gradient-mesh: radial-gradient(circle at 15% 20%, rgba(217, 119, 6, 0.1), transparent 45%),
+    radial-gradient(circle at 85% 0%, rgba(30, 37, 28, 0.08), transparent 45%),
+    radial-gradient(circle at 50% 100%, rgba(224, 122, 95, 0.1), transparent 55%);
+
+  /* Logo mark gradient stops (see header note above) — warm-to-deep sweep
+     that matches the amber/terracotta/olive system. */
+  --tp-brand-1: #e07a5f;
+  --tp-brand-2: #d97706;
+  --tp-brand-3: #1e251c;
+
+  /* ---- Color: ink — the "30%" structural chrome --------------------------
+     Header/footer bands, the React sidebar, and other high-level framework
+     wrappers. NOT for ordinary content surfaces — see the review checklist
+     for which components already read --tp-ink correctly and which don't. */
+  --tp-ink: #1e251c;
+  --tp-ink-soft: #262e23; /* secondary dark surface — nested panels, hover
+    rows inside dark chrome (e.g. a sidebar item's hover fill) */
+  --tp-ink-border: rgba(255, 255, 255, 0.09);
+  --tp-ink-text: #f3f5f0;
+  --tp-ink-text-muted: rgba(243, 245, 240, 0.62);
+
+  /* ---- Color: text (on the light canvas) ---------------------------------- */
+  --tp-text: #1f241d;
+  --tp-text-muted: #5b6358;
+  --tp-text-on-yellow: #20130a; /* dark warm-black — verified >=4.5:1 on both
+    --tp-yellow and --tp-yellow-dark; never swap this for white, see below */
+
+  /* ---- Color: semantic ------------------------------------------------------
+     Unchanged from the previous palette — these are independent of the
+     brand system and already tested for contrast on light surfaces. One
+     thing to watch: --tp-warning now sits close in hue to --tp-yellow
+     (both orange-amber). See the review checklist. */
+  --tp-success: #17a24f;
+  --tp-success-tint: #e7f8ee;
+  --tp-danger: #e13a3f;
+  --tp-danger-tint: #fdecec;
+  --tp-warning: #ef9209;
+  --tp-warning-tint: #fef2e0;
+  --tp-info: #3b74f6;
+  --tp-info-tint: #eaf1fe;
+
+  /* ---- Typography ---------------------------------------------------------- */
+  --tp-font-heading: 'Poppins', 'Segoe UI', sans-serif;
+  --tp-font-body: 'Inter', 'Segoe UI', sans-serif;
+
+  /* ---- Shape / elevation ----------------------------------------------------
+     Tightened slightly from the previous pass (8/14/20/28 → 6/10/14/24) —
+     sharper corners read as more "financial software serious" than the
+     rounder, friendlier radii the old consumer-facing themes used. */
+  --tp-radius-sm: 6px;
+  --tp-radius-md: 10px;
+  --tp-radius-lg: 16px;
+  --tp-radius-xl: 24px;
+  --tp-radius-pill: 999px;
+
+  /* Shadows now tint toward dark olive instead of generic black, and the
+     glow shadows use the new amber instead of the old sunrise orange. */
+  --tp-shadow-card: 0 1px 2px rgba(30, 37, 28, 0.05), 0 10px 24px rgba(30, 37, 28, 0.07);
+  --tp-shadow-elevated: 0 12px 20px rgba(30, 37, 28, 0.1), 0 28px 56px rgba(30, 37, 28, 0.16);
+  --tp-shadow-glow: 0 10px 24px rgba(217, 119, 6, 0.3), 0 2px 6px rgba(217, 119, 6, 0.2);
+  --tp-shadow-glow-lg: 0 22px 48px rgba(217, 119, 6, 0.36), 0 4px 12px rgba(217, 119, 6, 0.2);
+
+  /* ---- Motion ---------------------------------------------------------------- */
+  --tp-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --tp-transition: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  --tp-transition-spring: 450ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ---- Spacing scale (4px base) ---------------------------------------- */
+  --tp-space-1: 4px;
+  --tp-space-2: 8px;
+  --tp-space-3: 12px;
+  --tp-space-4: 16px;
+  --tp-space-5: 24px;
+  --tp-space-6: 32px;
+  --tp-space-7: 48px;
+  --tp-space-8: 64px; /* new — see header note */
+}

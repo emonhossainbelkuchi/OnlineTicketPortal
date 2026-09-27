@@ -1,0 +1,23 @@
+{
+  "name": "mock-erp",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/mock-erp/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node src/index.js",
+        "cwd": "apps/mock-erp"
+      }
+    },
+    "install": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm install",
+        "cwd": "apps/mock-erp"
+      }
+    }
+  },
+  "tags": ["scope:mock-erp", "type:app"]
+}

@@ -1,0 +1,26 @@
+# Normalize everything by default: store LF in the repo, check out LF too.
+# This is what was already committed for every text file here — this file just
+# makes it explicit and stops future commits/checkouts from drifting back to
+# CRLF (which is what caused ~95 files to show as "modified" with no real
+# content change).
+* text=auto eol=lf
+
+*.cs      text eol=lf diff=csharp
+*.csproj  text eol=lf
+*.sln     text eol=lf
+*.json    text eol=lf
+*.md      text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+*.gitattributes text eol=lf
+*.gitignore     text eol=lf
+
+# Binary files: never touch line endings, never diff as text.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.dll  binary
+*.pdb  binary
+*.zip  binary

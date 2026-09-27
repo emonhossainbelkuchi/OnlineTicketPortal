@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Chunk 10 P0 task 1/2. Not part of the Nx "api" app — a sibling app (apps/api.tests) so
+    `dotnet test` here never gets confused with `dotnet build TicketPortal.Api.csproj` in
+    apps/api, and so this project's own package set (xUnit, Mvc.Testing) never becomes part of
+    the shipped API's dependency graph.
+
+    Requires a local SQL Server LocalDB instance (Windows/`dotnet-tools` LocalDB, or a
+    docker/sqlcmd-reachable SQL Server with the connection string in
+    Infrastructure/TicketPortalWebApplicationFactory.cs adjusted) — same requirement the API
+    itself already has for `nx run api:migrate`. See apps/api.tests/README.md before running.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      Versions match the API project's own EF Core / ASP.NET Core version (10.0.10) so both
+      projects load one copy of the shared framework assemblies. xunit/Test SDK/coverlet
+      versions are the latest stable at time of writing — if `dotnet restore` reports one
+      unavailable, bump only that package; nothing here is version-sensitive to the others.
+    -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="6.0.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\api\TicketPortal.Api.csproj" />
+  </ItemGroup>
+
+</Project>

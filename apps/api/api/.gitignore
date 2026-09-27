@@ -1,0 +1,86 @@
+## .NET / ASP.NET Core build output
+bin/
+obj/
+out/
+
+## Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Rider / JetBrains
+.idea/
+*.sln.iml
+
+## VS Code
+.vscode/
+
+## Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## NuGet
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nuget.props
+*.nuget.targets
+
+## EF Core
+*.efcore.mdf
+*.efcore.ldf
+
+## Local secrets / environment
+## RBAC Amendment v3 / Chunk 1 task 2: appsettings.Development.json is deliberately NOT
+## ignored (see git history for the previous, broader rule) — it now carries a fixed,
+## clearly-labeled, non-secret Development-only JWT signing key, committed on purpose so a
+## fresh clone runs with zero extra setup (see /SETUP_AND_DEMO_GUIDE.md). Any environment
+## other than Development still has to supply its own real key via user-secrets or the
+## JWT__SigningKey environment variable — Program.cs refuses to start without one.
+appsettings.*.local.json
+*.env
+.env
+secrets.json
+
+## Uploaded/user content generated at runtime (adjust if you want seed images tracked)
+wwwroot/images/uploads/
+
+## OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+## Rider/VS temp files
+*.tmp
+*.bak
+*.swp
+*~
+
+## Test results
+[Tt]est[Rr]esult*/
+coverage*.json
+coverage*.xml
+coverage*.info
+
+## Angular / frontend (if/when the Angular client lives in this repo or a subfolder)
+node_modules/
+dist/
+.angular/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

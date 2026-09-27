@@ -1,0 +1,294 @@
+<div class="tp-trips">
+  <tp-card>
+    <div class="tp-trips__header">
+      <h3>Trips</h3>
+      <button tpButton variant="secondary" size="sm" (click)="openTripModal()">Add Trip</button>
+    </div>
+
+    <tp-table
+      [columns]="tripColumns"
+      [rows]="tripRows()"
+      emptyTitle="No trips yet"
+      emptyMessage="Create a trip to make it bookable on the unified route search."
+    >
+      <ng-template #rowActions let-row>
+        <tp-status-pill [status]="row['status']" />
+        <button tpButton variant="ghost" size="sm" (click)="selectTrip(row['id'])">Timeline</button>
+        <button tpButton variant="ghost" size="sm" (click)="openTripModal(findTrip(row['id']))">Edit</button>
+        <button tpButton variant="danger" size="sm" (click)="deleteTrip(row['id'])">Delete</button>
+      </ng-template>
+    </tp-table>
+  </tp-card>
+
+  @if (selectedTrip(); as trip) {
+    <tp-card>
+      <div class="tp-trips__header">
+        <h3>{{ trip.tripCode }} <tp-status-pill [status]="trip.status" /></h3>
+      </div>
+
+      <div class="tp-trips__quick-actions">
+        <button tpButton variant="secondary" size="sm" (click)="changeStatus(trip, 'Boarding')">Start boarding</button>
+        <button tpButton variant="secondary" size="sm" (click)="changeStatus(trip, 'Departed')">Mark departed</button>
+        <button tpButton variant="secondary" size="sm" (click)="changeStatus(trip, 'Running')">Mark running</button>
+        <button tpButton variant="secondary" size="sm" (click)="changeStatus(trip, 'Arrived')">Mark arrived</button>
+        <button tpButton variant="secondary" size="sm" (click)="changeStatus(trip, 'Completed')">Mark completed</button>
+        <button tpButton variant="secondary" size="sm" (click)="changeStatus(trip, 'Delayed')">Report delay…</button>
+        <button tpButton variant="secondary" size="sm" (click)="openManifestModal(trip)">Manifest</button>
+        <button tpButton variant="danger" size="sm" (click)="openCancelModal(trip)">Cancel trip…</button>
+      </div>
+
+      <label class="tp-trips__cover-upload">
+        <span>Upload cover photo</span>
+        <input type="file" accept="image/*" (change)="onCoverImageSelected($event)" />
+      </label>
+
+      <h4 class="tp-trips__sub-title">Status history</h4>
+      <tp-table [columns]="historyColumns" [rows]="historyRows()" emptyTitle="No status changes recorded yet" />
+    </tp-card>
+  }
+
+  <tp-card>
+    <div class="tp-trips__header">
+      <h3>Recurring Schedules</h3>
+      <button tpButton variant="secondary" size="sm" (click)="openScheduleModal()">Add Schedule</button>
+    </div>
+    <p class="tp-muted tp-hint">Templates for trips that run on a repeating pattern — doesn't create trips automatically yet, use as a reference when creating them above.</p>
+
+    <tp-table [columns]="scheduleColumns" [rows]="scheduleRows()" emptyTitle="No recurring schedules yet">
+      <ng-template #rowActions let-row>
+        <button tpButton variant="ghost" size="sm" (click)="openScheduleModal(findSchedule(row['id']))">Edit</button>
+        <button tpButton variant="danger" size="sm" (click)="deleteSchedule(row['id'])">Delete</button>
+      </ng-template>
+    </tp-table>
+  </tp-card>
+</div>
+
+<tp-modal [open]="tripModalOpen()" [title]="editingTrip() ? 'Edit Trip' : 'Add Trip'" (closed)="closeTripModal()">
+  <form [formGroup]="tripForm" class="tp-form-grid">
+    <label>
+      Trip code
+      <input type="text" formControlName="tripCode" />
+    </label>
+    <label>
+      Bus route
+      <select formControlName="busRouteId">
+        <option value="" disabled>Select a route…</option>
+        @for (r of busRoutes(); track r.id) {
+          <option [value]="r.id">{{ r.routeCode }} — {{ r.name }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Bus
+      <select formControlName="busId">
+        <option value="" disabled>Select a bus…</option>
+        @for (b of buses(); track b.id) {
+          <option [value]="b.id">{{ b.registrationNumber }} ({{ b.totalSeats }} seats)</option>
+        }
+      </select>
+    </label>
+    <label>
+      Departure terminal
+      <select formControlName="departureTerminalId">
+        <option value="" disabled>Select…</option>
+        @for (t of terminals(); track t.id) {
+          <option [value]="t.id">{{ t.name }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Arrival terminal
+      <select formControlName="arrivalTerminalId">
+        <option value="" disabled>Select…</option>
+        @for (t of terminals(); track t.id) {
+          <option [value]="t.id">{{ t.name }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Departure (local)
+      <input type="datetime-local" formControlName="departureTimeUtc" />
+    </label>
+    <label>
+      Arrival (local)
+      <input type="datetime-local" formControlName="arrivalTimeUtc" />
+    </label>
+    <label>
+      Base fare
+      <input type="number" formControlName="baseFare" />
+    </label>
+    <label>
+      Currency
+      <input type="text" formControlName="currency" maxlength="3" />
+    </label>
+    <label class="tp-trips__checkbox">
+      <input type="checkbox" formControlName="isWheelchairAccessible" />
+      Wheelchair accessible
+    </label>
+
+    @if (editingTrip()) {
+      <label>
+        Status
+        <select formControlName="status">
+          @for (s of editableTripStatuses; track s) {
+            <option [value]="s">{{ s }}</option>
+          }
+        </select>
+      </label>
+      <p class="tp-form-grid__span2 tp-muted tp-hint">
+        To cancel this trip, use the "Cancel trip…" button on the trip's card instead — cancelling refunds its
+        confirmed bookings and releases its active seat holds, which this form can't do.
+      </p>
+      <label>
+        Delay reason
+        <input type="text" formControlName="delayReason" />
+      </label>
+      <p class="tp-form-grid__span2 tp-muted tp-hint">
+        The seat map is set when a trip is created and isn't editable here — it stays exactly as it is.
+      </p>
+    } @else {
+      <p class="tp-form-grid__span2 tp-muted tp-hint">
+        Every seat on the selected bus will be seeded at the base fare (plus any per-seat extra fare).
+      </p>
+    }
+  </form>
+  <div modal-footer>
+    <button tpButton variant="secondary" (click)="closeTripModal()">Cancel</button>
+    <button tpButton variant="primary" [disabled]="tripForm.invalid || saving()" (click)="saveTrip()">
+      {{ saving() ? 'Saving…' : 'Save' }}
+    </button>
+  </div>
+</tp-modal>
+
+<tp-modal [open]="scheduleModalOpen()" [title]="editingSchedule() ? 'Edit Schedule' : 'Add Schedule'" (closed)="closeScheduleModal()">
+  <form [formGroup]="scheduleForm" class="tp-form-grid">
+    <label>
+      Schedule code
+      <input type="text" formControlName="scheduleCode" />
+    </label>
+    <label>
+      Bus route
+      <select formControlName="busRouteId">
+        <option value="" disabled>Select a route…</option>
+        @for (r of busRoutes(); track r.id) {
+          <option [value]="r.id">{{ r.routeCode }} — {{ r.name }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Bus
+      <select formControlName="busId">
+        <option value="" disabled>Select a bus…</option>
+        @for (b of buses(); track b.id) {
+          <option [value]="b.id">{{ b.registrationNumber }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Departure time
+      <input type="time" formControlName="departureTimeOfDay" />
+    </label>
+    <label>
+      Arrival time
+      <input type="time" formControlName="arrivalTimeOfDay" />
+    </label>
+    <label>
+      Base fare
+      <input type="number" formControlName="baseFare" />
+    </label>
+    <label>
+      Currency
+      <input type="text" formControlName="currency" maxlength="3" />
+    </label>
+    <label>
+      Effective from
+      <input type="date" formControlName="effectiveFrom" />
+    </label>
+    <label>
+      Effective to
+      <input type="date" formControlName="effectiveTo" />
+    </label>
+    <label class="tp-trips__checkbox">
+      <input type="checkbox" formControlName="isActive" />
+      Active
+    </label>
+
+    <div class="tp-form-grid__span2" [formGroup]="scheduleForm.controls.days">
+      <span class="tp-trips__days-label">Operating days</span>
+      <div class="tp-trips__days">
+        @for (day of dayFlags; track day) {
+          <label class="tp-trips__checkbox">
+            <input type="checkbox" [formControlName]="day" />
+            {{ day }}
+          </label>
+        }
+      </div>
+    </div>
+  </form>
+  <div modal-footer>
+    <button tpButton variant="secondary" (click)="closeScheduleModal()">Cancel</button>
+    <button tpButton variant="primary" [disabled]="scheduleForm.invalid" (click)="saveSchedule()">Save</button>
+  </div>
+</tp-modal>
+
+<!-- Chunk 5: cancel-trip confirmation — shows what the cancellation will actually do
+     (bookings refunded, holds released) before the operator commits to it. -->
+<tp-modal [open]="cancelModalOpen()" title="Cancel trip" (closed)="closeCancelModal()">
+  @if (cancellingTrip(); as trip) {
+    @if (cancelPreview(); as preview) {
+      @if (!preview.canCancel) {
+        <p class="tp-muted">
+          {{ trip.tripCode }} is currently <strong>{{ preview.currentStatus }}</strong> and can no longer be
+          cancelled from here (only Scheduled, Boarding, or Delayed trips can be).
+        </p>
+      } @else {
+        <p>
+          Cancelling <strong>{{ trip.tripCode }}</strong> will:
+        </p>
+        <ul>
+          <li>
+            Refund <strong>{{ preview.bookingsToRefundCount }}</strong> booking(s) in full — no cancellation fee —
+            totalling <strong>{{ formatMoney(preview.totalRefundAmount, preview.currency) }}</strong>
+            ({{ preview.onlineBookingsCount }} online, {{ preview.counterBookingsCount }} counter-sale)
+          </li>
+          <li>Release <strong>{{ preview.activeSeatHoldsToRelease }}</strong> active seat hold(s)</li>
+        </ul>
+        <label>
+          Reason for cancelling (required, shown on the trip's history and every refund)
+          <textarea
+            rows="2"
+            placeholder="e.g. Bus broke down, route flooded, driver unavailable…"
+            [value]="cancelReason()"
+            (input)="onCancelReasonInput($any($event.target).value)"
+          ></textarea>
+        </label>
+      }
+    } @else {
+      <p class="tp-muted">Checking what this cancellation will affect…</p>
+    }
+  }
+  <div modal-footer>
+    <button tpButton variant="secondary" (click)="closeCancelModal()">Back</button>
+    <button
+      tpButton
+      variant="danger"
+      [disabled]="cancelReason().trim().length < 3 || cancelling() || !cancelPreview()?.canCancel"
+      (click)="confirmCancelTrip()"
+    >
+      {{ cancelling() ? 'Cancelling…' : 'Confirm cancellation' }}
+    </button>
+  </div>
+</tp-modal>
+
+<!-- Chunk 5: passenger manifest — the driver/conductor's boarding list for one trip. -->
+<tp-modal [open]="manifestModalOpen()" title="Passenger manifest" (closed)="closeManifestModal()">
+  @if (manifest(); as m) {
+    <div class="tp-trips__header">
+      <h4>{{ m.tripCode }} <tp-status-pill [status]="m.status" /></h4>
+      <span class="tp-muted">{{ m.checkedInCount }} / {{ m.totalPassengers }} checked in</span>
+    </div>
+    <tp-table [columns]="manifestColumns" [rows]="manifestRows()" emptyTitle="No passengers on this trip" />
+  } @else {
+    <p class="tp-muted">Loading manifest…</p>
+  }
+</tp-modal>

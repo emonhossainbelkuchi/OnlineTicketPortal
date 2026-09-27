@@ -1,0 +1,60 @@
+.tp-crew {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tp-space-5);
+}
+
+.tp-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--tp-space-4);
+  margin-top: var(--tp-space-4);
+}
+
+.tp-form-grid__span2 {
+  grid-column: 1 / -1;
+}
+
+.tp-form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tp-space-2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tp-text-muted);
+}
+
+.tp-form-grid input,
+.tp-form-grid select {
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-sm);
+  padding: 8px var(--tp-space-3);
+  font-size: 14px;
+  font-family: var(--tp-font-body);
+  color: var(--tp-text);
+}
+
+.tp-crew__picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tp-space-2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tp-text-muted);
+  max-width: 420px;
+  margin: var(--tp-space-3) 0 var(--tp-space-4);
+}
+
+.tp-crew__picker select {
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-sm);
+  padding: 8px var(--tp-space-3);
+  font-size: 14px;
+}
+
+.tp-crew__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--tp-space-3);
+}

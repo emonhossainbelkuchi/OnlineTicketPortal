@@ -1,0 +1,64 @@
+<div class="tp-crew">
+  <tp-card>
+    <h3>Crew Assignment</h3>
+    <label class="tp-crew__picker">
+      Trip
+      <select (change)="selectTrip($any($event.target).value)">
+        <option value="">Select a trip…</option>
+        @for (t of tripOptions(); track t.id) {
+          <option [value]="t.id">{{ t.label }}</option>
+        }
+      </select>
+    </label>
+
+    @if (selectedTripId()) {
+      <div class="tp-crew__header">
+        <span></span>
+        <button tpButton variant="secondary" size="sm" (click)="openAssignModal()">Assign Crew</button>
+      </div>
+
+      <tp-table
+        [columns]="crewColumns"
+        [rows]="crewRows()"
+        emptyTitle="No crew assigned to this trip yet"
+        emptyMessage="Assign a driver and any assistant crew before the trip departs."
+      >
+        <ng-template #rowActions let-row>
+          <button tpButton variant="danger" size="sm" (click)="removeAssignment(row['id'])">Remove</button>
+        </ng-template>
+      </tp-table>
+    }
+  </tp-card>
+</div>
+
+<tp-modal [open]="assignModalOpen()" title="Assign Crew" (closed)="closeAssignModal()">
+  <form [formGroup]="assignForm" class="tp-form-grid">
+    <label class="tp-form-grid__span2">
+      Staff member
+      <select formControlName="staffProfileId">
+        <option value="" disabled>Select staff…</option>
+        @for (s of staff(); track s.id) {
+          <option [value]="s.id">{{ s.employeeCode }} — {{ s.role }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Crew role for this trip
+      <select formControlName="role">
+        @for (r of crewRoles; track r) {
+          <option [value]="r">{{ r }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Assigned at
+      <input type="datetime-local" formControlName="assignedAtUtc" />
+    </label>
+  </form>
+  <div modal-footer>
+    <button tpButton variant="secondary" (click)="closeAssignModal()">Cancel</button>
+    <button tpButton variant="primary" [disabled]="assignForm.invalid || saving()" (click)="saveAssignment()">
+      {{ saving() ? 'Saving…' : 'Assign' }}
+    </button>
+  </div>
+</tp-modal>
