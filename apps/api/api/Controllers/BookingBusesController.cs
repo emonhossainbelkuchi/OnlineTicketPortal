@@ -129,6 +129,7 @@ namespace TicketPortal.Api.Controllers
       var buses = await db.Buses
           .AsNoTracking()
           .Include(b => b.Images)
+          .Include(b => b.BusOperator)
           .Include(b => b.AmenityMappings)
               .ThenInclude(am => am.Amenity)
           .Where(b =>
@@ -187,6 +188,8 @@ namespace TicketPortal.Api.Controllers
                 bus.Images
                     .FirstOrDefault(i => i.IsPrimary)?.ImageUrl
                 ?? bus.Images.FirstOrDefault()?.ImageUrl,
+          BusOperatorId = bus.BusOperatorId,
+          BusOperatorName = bus.BusOperator?.Name ?? string.Empty,
 
           // AMENITIES
           Amenities = bus.AmenityMappings
@@ -346,6 +349,7 @@ namespace TicketPortal.Api.Controllers
       var bus = await db.Buses
           .AsNoTracking()
           .Include(b => b.Images)
+          .Include(b => b.BusOperator)
           .Include(b => b.AmenityMappings)
               .ThenInclude(am => am.Amenity)
           .FirstOrDefaultAsync(b => b.Id == id && b.IsActive);
@@ -421,6 +425,8 @@ namespace TicketPortal.Api.Controllers
               bus.Images
                   .FirstOrDefault(i => i.IsPrimary)?.ImageUrl
               ?? bus.Images.FirstOrDefault()?.ImageUrl,
+        BusOperatorId = bus.BusOperatorId,
+        BusOperatorName = bus.BusOperator?.Name ?? string.Empty,
 
         Amenities = bus.AmenityMappings
               .Where(am => am.Amenity != null && am.Amenity.IsActive)

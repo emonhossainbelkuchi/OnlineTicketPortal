@@ -120,6 +120,18 @@ import SeatHoldsDetails from '@/pages/admin/SeatHoldsDetails';
 // Import (upore, onno import gulor sathe)
 import CancellationRequestsList from '@/pages/admin/CancellationRequestsList';
 import CancellationRequestsDetails from '@/pages/admin/CancellationRequestsDetails';
+import BusAmenityMappingsList from '@/pages/admin/BusAmenityMappingsList';
+import BusAmenityMappingsCreate from '@/pages/admin/BusAmenityMappingsCreate';
+import BusAmenityMappingsDetails from '@/pages/admin/BusAmenityMappingsDetails';
+import BusAmenityMappingsEdit from '@/pages/admin/BusAmenityMappingsEdit';
+import BusImagesList from '@/pages/admin/BusImagesList';
+import BusImagesCreate from '@/pages/admin/BusImagesCreate';
+import BusImagesDetails from '@/pages/admin/BusImagesDetails';
+import BusImagesEdit from '@/pages/admin/BusImagesEdit';
+import OperatorIntegrationEndpointsList from '@/pages/admin/OperatorIntegrationEndpointsList';
+import OperatorIntegrationEndpointsCreate from '@/pages/admin/OperatorIntegrationEndpointsCreate';
+import OperatorIntegrationEndpointsDetails from '@/pages/admin/OperatorIntegrationEndpointsDetails';
+import OperatorIntegrationEndpointsEdit from '@/pages/admin/OperatorIntegrationEndpointsEdit';
 
 // Cancellation Policies Pages (realtime — api/CancellationPolicies backend)
 import CancellationPoliciesList from '@/pages/admin/CancellationPoliciesList';
@@ -822,16 +834,34 @@ export default function AppRoutes() {
           {/* Families whose original pages were localStorage-only prototypes now use the generic,
               API-backed resource page (see console/README.md). Old URLs redirect there. (Never use a
               `resource/<Key>/*` splat here: it also matches the bare list URL and redirects it to itself.) */}
-          <Route path='bus-amenity-mappings/*' element={<Navigate to='/admin/resource/BusAmenityMappings' replace />} />
-          <Route path='bus-amenity-mappings' element={<Navigate to='/admin/resource/BusAmenityMappings' replace />} />
+          {/* BusAmenityMappings got its own real pages back (List/Create/Details/Edit, all live off
+              api/BusAmenityMappings + api/Buses + api/BusAmenities, no localStorage) because the
+              generic resource table only ever showed raw BusId/BusAmenityId GUIDs — unreadable.
+              A static path like 'resource/BusAmenityMappings' always outranks the generic
+              'resource/:key' route below it in React Router v6's route ranking, regardless of
+              declaration order, so this doesn't need to move above that fallback. */}
+          <Route path='resource/BusAmenityMappings' element={<BusAmenityMappingsList />} />
+          <Route path='resource/BusAmenityMappings/new' element={<BusAmenityMappingsCreate />} />
+          <Route path='resource/BusAmenityMappings/:id' element={<BusAmenityMappingsDetails />} />
+          <Route path='resource/BusAmenityMappings/:id/edit' element={<BusAmenityMappingsEdit />} />
+          <Route path='bus-amenity-mappings' element={<BusAmenityMappingsList />} />
+          <Route path='bus-amenity-mappings/new' element={<BusAmenityMappingsCreate />} />
+          <Route path='bus-amenity-mappings/:id' element={<BusAmenityMappingsDetails />} />
+          <Route path='bus-amenity-mappings/:id/edit' element={<BusAmenityMappingsEdit />} />
           <Route path='bus-amenities-mapping/*' element={<Navigate to='/admin/resource/BusAmenityMappings' replace />} />
           <Route path='bus-amenities-mapping' element={<Navigate to='/admin/resource/BusAmenityMappings' replace />} />
           <Route path='bus-amenities-mappings/*' element={<Navigate to='/admin/resource/BusAmenityMappings' replace />} />
           <Route path='bus-amenities-mappings' element={<Navigate to='/admin/resource/BusAmenityMappings' replace />} />
-          <Route path='resource/BusAmenityMappings/:id' element={<Navigate to='/admin/resource/BusAmenityMappings' replace />} />
-          <Route path='resource/BusAmenityMappings/:id/edit' element={<Navigate to='/admin/resource/BusAmenityMappings' replace />} />
-          <Route path='bus-images/*' element={<Navigate to='/admin/resource/BusImages' replace />} />
-          <Route path='bus-images' element={<Navigate to='/admin/resource/BusImages' replace />} />
+          {/* BusImages — same reasoning as BusAmenityMappings above: real pages instead of the
+              generic raw-GUID table, live off api/BusImages + api/Buses, no localStorage. */}
+          <Route path='resource/BusImages' element={<BusImagesList />} />
+          <Route path='resource/BusImages/new' element={<BusImagesCreate />} />
+          <Route path='resource/BusImages/:id' element={<BusImagesDetails />} />
+          <Route path='resource/BusImages/:id/edit' element={<BusImagesEdit />} />
+          <Route path='bus-images' element={<BusImagesList />} />
+          <Route path='bus-images/new' element={<BusImagesCreate />} />
+          <Route path='bus-images/:id' element={<BusImagesDetails />} />
+          <Route path='bus-images/:id/edit' element={<BusImagesEdit />} />
           <Route path='bus-image/*' element={<Navigate to='/admin/resource/BusImages' replace />} />
           <Route path='bus-image' element={<Navigate to='/admin/resource/BusImages' replace />} />
           <Route path='resource/BusImages/:id' element={<Navigate to='/admin/resource/BusImages' replace />} />
@@ -858,16 +888,23 @@ export default function AppRoutes() {
           <Route path='operator-integration' element={<Navigate to='/admin/resource/OperatorIntegrations' replace />} />
           <Route path='resource/OperatorIntegrations/:id' element={<Navigate to='/admin/resource/OperatorIntegrations' replace />} />
           <Route path='resource/OperatorIntegrations/:id/edit' element={<Navigate to='/admin/resource/OperatorIntegrations' replace />} />
-          <Route path='operator-integration-endpoints/*' element={<Navigate to='/admin/resource/OperatorIntegrationEndpoints' replace />} />
-          <Route path='operator-integration-endpoints' element={<Navigate to='/admin/resource/OperatorIntegrationEndpoints' replace />} />
+          {/* OperatorIntegrationEndpoints — same reasoning as BusAmenityMappings/BusImages above:
+              real pages instead of the generic raw-GUID table, live off
+              api/OperatorIntegrationEndpoints + api/OperatorIntegrations, no localStorage. */}
+          <Route path='resource/OperatorIntegrationEndpoints' element={<OperatorIntegrationEndpointsList />} />
+          <Route path='resource/OperatorIntegrationEndpoints/new' element={<OperatorIntegrationEndpointsCreate />} />
+          <Route path='resource/OperatorIntegrationEndpoints/:id' element={<OperatorIntegrationEndpointsDetails />} />
+          <Route path='resource/OperatorIntegrationEndpoints/:id/edit' element={<OperatorIntegrationEndpointsEdit />} />
+          <Route path='operator-integration-endpoints' element={<OperatorIntegrationEndpointsList />} />
+          <Route path='operator-integration-endpoints/new' element={<OperatorIntegrationEndpointsCreate />} />
+          <Route path='operator-integration-endpoints/:id' element={<OperatorIntegrationEndpointsDetails />} />
+          <Route path='operator-integration-endpoints/:id/edit' element={<OperatorIntegrationEndpointsEdit />} />
           <Route path='operator-integration-endpoint/*' element={<Navigate to='/admin/resource/OperatorIntegrationEndpoints' replace />} />
           <Route path='operator-integration-endpoint' element={<Navigate to='/admin/resource/OperatorIntegrationEndpoints' replace />} />
           <Route path='operator-setting-endpoints/*' element={<Navigate to='/admin/resource/OperatorIntegrationEndpoints' replace />} />
           <Route path='operator-setting-endpoints' element={<Navigate to='/admin/resource/OperatorIntegrationEndpoints' replace />} />
           <Route path='operator-setting-endpoint/*' element={<Navigate to='/admin/resource/OperatorIntegrationEndpoints' replace />} />
           <Route path='operator-setting-endpoint' element={<Navigate to='/admin/resource/OperatorIntegrationEndpoints' replace />} />
-          <Route path='resource/OperatorIntegrationEndpoints/:id' element={<Navigate to='/admin/resource/OperatorIntegrationEndpoints' replace />} />
-          <Route path='resource/OperatorIntegrationEndpoints/:id/edit' element={<Navigate to='/admin/resource/OperatorIntegrationEndpoints' replace />} />
           <Route path='operator-settings/*' element={<Navigate to='/admin/resource/OperatorSettings' replace />} />
           <Route path='operator-settings' element={<Navigate to='/admin/resource/OperatorSettings' replace />} />
           <Route path='operator-setting/*' element={<Navigate to='/admin/resource/OperatorSettings' replace />} />

@@ -19,6 +19,8 @@ namespace TicketPortal.Api.DTO
     public bool HasToilet { get; set; }
     public int? ManufactureYear { get; set; }
     public string? PrimaryImageUrl { get; set; }
+    public Guid BusOperatorId { get; set; }
+    public string BusOperatorName { get; set; } = string.Empty;
 
     // ============ AMENITIES ============
     public List<string> Amenities { get; set; } = new();

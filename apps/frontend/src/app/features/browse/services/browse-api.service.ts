@@ -35,6 +35,8 @@ export interface BrowseBus {
   hasToilet: boolean;
   manufactureYear: number | null;
   primaryImageUrl: string | null;
+  busOperatorId: string;
+  busOperatorName: string;
   amenities: string[];
   tripId: string;
   tripCode: string;

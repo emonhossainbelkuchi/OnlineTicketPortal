@@ -23,25 +23,27 @@ namespace TicketPortal.Api.Services
     // from the real CancellationPolicy", the same way RefundProcessingService did for refunds
     // themselves.
     //
-    // On approval this creates the Refund row and stops — it deliberately does NOT call
-    // RefundProcessingService.ApproveAsync/ProcessAsync itself. Refunds still only move
-    // through RefundsController's own Approve/Process actions, exactly like the Refund that
-    // PaymentConfirmationService creates automatically when held seats are lost after
-    // payment (see Services/PaymentConfirmationService.cs) — one single place creates a
-    // Refund at Requested, and RefundProcessingService is the only thing that ever advances
-    // it from there. That keeps this service from duplicating any of that logic.
+    // On approval this creates the Refund row AND immediately drives it through
+    // RefundProcessingService.ApproveAsync/ProcessAsync (see the comment at the end of
+    // ApproveAsync below for why) — Reject/Complete on an *independent* Refund (e.g. the one
+    // PaymentConfirmationService creates automatically when held seats are lost after payment,
+    // see Services/PaymentConfirmationService.cs) still only move through RefundsController's
+    // own actions; this class only ever drives the one Refund it just created itself.
     public class CancellationProcessingService
     {
         private readonly AppDbContext _db;
         private readonly SeatHoldService _seatHoldService;
         private readonly ExternalBookingSyncService _externalSync;
+        private readonly RefundProcessingService _refundProcessingService;
 
         public CancellationProcessingService(
-            AppDbContext db, SeatHoldService seatHoldService, ExternalBookingSyncService externalSync)
+            AppDbContext db, SeatHoldService seatHoldService, ExternalBookingSyncService externalSync,
+            RefundProcessingService refundProcessingService)
         {
             _db = db;
             _seatHoldService = seatHoldService;
             _externalSync = externalSync;
+            _refundProcessingService = refundProcessingService;
         }
 
         // Customer-initiated (or staff, on the customer's behalf) — ties the request to the
@@ -330,6 +332,33 @@ namespace TicketPortal.Api.Services
             // is a no-op for a booking that was never synced with an operator ERP in the first
             // place, i.e. every PlatformManaged booking).
             await _externalSync.TryCancelExternalBookingAsync(booking.Id);
+
+            // Client decision (dashboard follow-up): leaving the linked Refund sitting at
+            // Requested meant the Admin Overview's Online Gross/Commission and Refunds figures
+            // never moved right after an approval — those are computed straight off the
+            // FinanceLedgerService ledger, which only gets its Refund entry from
+            // RefundProcessingService.ProcessAsync's Stage 1, not from a CancellationRequest
+            // being Approved. So a cancellation approval here now drives the Refund through
+            // both of RefundProcessingService's own steps immediately, instead of leaving it
+            // for staff to separately find in the Refunds resource and push through by hand.
+            // Same best-effort shape as the ERP sync line above: the cancellation itself is
+            // already committed, so a failure here (e.g. a guest refund parking at
+            // PendingManualPayout after Stage 1, which is not a failure, or a genuine Stage 2
+            // wallet-credit problem landing it on ReconciliationNeeded) is left for staff to
+            // find via the Refund's own status/history rather than rolled back into an
+            // exception that would make the caller think the cancellation itself didn't go
+            // through.
+            try
+            {
+                await _refundProcessingService.ApproveAsync(refund.Id, remarks);
+                await _refundProcessingService.ProcessAsync(refund.Id);
+            }
+            catch
+            {
+                // Swallowed deliberately — see the comment above. The Refund's own row
+                // (Approved/Processing/Failed/ReconciliationNeeded/PendingManualPayout) is the
+                // source of truth for what happened next, not this method's return.
+            }
         }
 
         public async Task RejectAsync(Guid cancellationRequestId, string rejectedReason)
